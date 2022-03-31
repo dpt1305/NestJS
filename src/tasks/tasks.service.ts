@@ -5,6 +5,8 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 import { v4 as uuid } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
+import { GetTaskFilterDto } from './dto/get-task-filter.dto';
+
 
 @Injectable()
 export class TasksService {
@@ -54,5 +56,13 @@ export class TasksService {
     } else {
       return `Delete unsuccessfully.`;
     }
+  }
+  async getTasksFilter(getTaskFilterDto: GetTaskFilterDto) {
+    const query = await this.taskRepository.getQuery();
+    const { title, status } = getTaskFilterDto;
+    query.orWhere('task.title = :title', { title: title });
+    query.orWhere('task.status = :status', {status});
+    const result = query.getMany();
+    return result;
   }
 }
