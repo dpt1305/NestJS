@@ -1,3 +1,4 @@
+import { AuthGuard } from '@nestjs/passport';
 import {
   Controller,
   Get,
@@ -7,6 +8,7 @@ import {
   Param,
   Query,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { CreateTaskDto } from './dto/create-task.dto';
@@ -14,12 +16,14 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { GetTaskFilterDto } from './dto/get-task-filter.dto';
+
+@UseGuards(AuthGuard())
 @Controller('tasks')
 export class TasksController {
   constructor(private tasksService: TasksService) {}
-
+  
   @Post()
-  createTask(@Body() createTaskDto: CreateTaskDto): Promise<Task> {
+  createTask(@Body() createTaskDto: CreateTaskDto) {
     return this.tasksService.create(createTaskDto);
   }
 

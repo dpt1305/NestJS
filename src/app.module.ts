@@ -7,8 +7,6 @@ import { TasksModule } from './tasks/tasks.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './tasks/entities/task.entity';
 import { AuthModule } from './auth/auth.module';
-
-
 @Module({
   imports: [
     TasksModule,
@@ -22,7 +20,7 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true,
       entities: [Task, User],
     }),
-    AuthModule,
+    // AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

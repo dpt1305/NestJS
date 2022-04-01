@@ -7,7 +7,6 @@ import { v4 as uuid } from 'uuid';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetTaskFilterDto } from './dto/get-task-filter.dto';
 
-
 @Injectable()
 export class TasksService {
   constructor(
@@ -27,12 +26,11 @@ export class TasksService {
   async create(createTaskDto: CreateTaskDto): Promise<Task> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { title, status } = createTaskDto;
-    const task = this.taskRepository.create({
-      title,
-      status,
-    });
-    await this.taskRepository.save(task);
-    return task;
+    try {
+      return this.taskRepository.createTask(title, status);
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 
   findAll() {
