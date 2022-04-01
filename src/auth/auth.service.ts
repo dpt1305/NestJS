@@ -1,26 +1,43 @@
+import { InjectRepository } from '@nestjs/typeorm';
+import { UserRepository } from './user.repository';
+import { UserDto } from './dto/user.dto';
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import * as bcrypt from 'bcrypt';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    @InjectRepository(UserRepository)
+    private userRepository: UserRepository,
+    private jwtService: JwtService,
+  ) {}
+  async signUp(userDto: UserDto) {
+    try {
+      await this.userRepository.createUser(userDto);
+      return `Successfully: create a new user.`;
+    } catch (error) {
+      console.log(error);
+      return `Fail !`;
+    }
   }
+  async signIn(userDto: UserDto) {
+    const { username, password } = userDto;
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+    try {
+      const user = await this.userRepository.findOne({
+        where: { username },
+      });
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+      const checkPassword = await bcrypt.compare(password, user.password);
+      if (user && checkPassword) {
+        const payload = username;
+        const access_token: string = await this.jwtService.sign({ username });
+        return `jwt: ${access_token}`;
+      }
+      return `fail asd`;
+    } catch (error) {
+      throw new Error(error);
+    }
   }
 }
