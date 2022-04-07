@@ -1,3 +1,5 @@
+import { Lesson } from './lessons/entities/lesson.entity';
+import { Course } from './courses/entities/course.entity';
 import { User } from './auth/entities/user.entity';
 // import { TypeOrmModule } from '@nestjs/orm';
 import { Module } from '@nestjs/common';
@@ -7,6 +9,9 @@ import { TasksModule } from './tasks/tasks.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Task } from './tasks/entities/task.entity';
 import { AuthModule } from './auth/auth.module';
+import { CoursesModule } from './courses/courses.module';
+import { LessonsModule } from './lessons/lessons.module';
+
 @Module({
   imports: [
     TasksModule,
@@ -18,9 +23,11 @@ import { AuthModule } from './auth/auth.module';
       password: 'postgres',
       database: 'task-manager',
       synchronize: true,
-      entities: [Task, User],
+      entities: [Task, User, Course, Lesson],
+      // entities: [__dirname + '/../**/*.entity.ts'],
     }),
-    // AuthModule,
+    CoursesModule,
+    LessonsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
