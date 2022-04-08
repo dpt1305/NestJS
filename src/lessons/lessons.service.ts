@@ -1,17 +1,34 @@
+import { CourseRepository } from './../courses/courses.repository';
+import { CoursesService } from './../courses/courses.service';
+import { Lesson } from './entities/lesson.entity';
 import { LessonRepository } from './lesson.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-
+import { createQueryBuilder } from 'typeorm';
+// import { CoursesService}
 @Injectable()
 export class LessonsService {
   constructor(
     @InjectRepository(LessonRepository)
     private lessonRepository: LessonRepository,
+    @InjectRepository(CourseRepository)
+    private courseRepository: CourseRepository,
   ) {}
-  create(createLessonDto: CreateLessonDto) {
-    const { title, course } = createLessonDto;
+  async create(
+    createLessonDto: CreateLessonDto,
+    idCourse: string,
+  ): Promise<any> {
+    const { title } = createLessonDto;
+
+    const course = await this.courseRepository.findCourseById(idCourse);
+    console.log(course);
+    // const course = await createQueryBuilder('course')
+    //   .where('course.id = :id', { idCourse })
+    //   .getOne();
+    // const course = await courseService.findOne(idCourse);
+    // console.log(course);
     return this.lessonRepository.createLesson(title, course);
   }
 

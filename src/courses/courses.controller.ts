@@ -10,6 +10,7 @@ import {
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { Course } from './entities/course.entity';
 
 @Controller('courses')
 export class CoursesController {
@@ -24,10 +25,14 @@ export class CoursesController {
   findAll() {
     return this.coursesService.findAll();
   }
-  // not used
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.coursesService.findOne(+id);
+
+  // @Get(':id')
+  // findLessonsByCourse(@Param('id') idCourse: string) {
+  //   return this.coursesService.findLessonsByCourse(idCourse);
+  // }
+  @Post(':id')
+  findOne(@Param('id') id: string): Promise<Course> {
+    return this.coursesService.findOne(id);
   }
 
   @Patch(':id')

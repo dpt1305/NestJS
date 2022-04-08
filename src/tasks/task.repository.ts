@@ -7,6 +7,7 @@ import { GetTaskFilterDto } from '../tasks/dto/get-task-filter.dto';
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
   async createTask(title: string, status: string, user: User): Promise<Task> {
+    console.log(user);
     const task = await this.create({
       id: uuid(),
       title: title,

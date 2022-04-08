@@ -6,8 +6,6 @@ import {
   OneToMany,
   JoinColumn,
 } from 'typeorm';
-// import {Column}
-// import { Lesson}
 @Entity()
 export class Course {
   @PrimaryGeneratedColumn('uuid')
@@ -19,8 +17,6 @@ export class Course {
   @Column('text')
   description: string;
 
-  // @Column('varchar')
-  // @OneToMany(() => Lesson, (lesson) => lesson.course)
-  // @JoinColumn()
-  // lessons: string;
+  @OneToMany(() => Lesson, (lesson) => lesson.course)
+  lessons: Lesson[];
 }

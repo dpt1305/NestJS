@@ -1,3 +1,4 @@
+import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -18,8 +19,12 @@ export class CoursesService {
     return this.courseRepository.getCourses();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} course`;
+  findOne(id: string): Promise<Course> {
+    return this.courseRepository.findCourseById(id);
+  }
+
+  findLessonsByCourse(id: string) {
+    return this.courseRepository.findLessonsByCourse(id);
   }
 
   update(id: number, updateCourseDto: UpdateCourseDto) {
