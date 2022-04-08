@@ -19,16 +19,11 @@ export class LessonsService {
   async create(
     createLessonDto: CreateLessonDto,
     idCourse: string,
-  ): Promise<any> {
+  ): Promise<Lesson> {
     const { title } = createLessonDto;
 
     const course = await this.courseRepository.findCourseById(idCourse);
-    console.log(course);
-    // const course = await createQueryBuilder('course')
-    //   .where('course.id = :id', { idCourse })
-    //   .getOne();
-    // const course = await courseService.findOne(idCourse);
-    // console.log(course);
+
     return this.lessonRepository.createLesson(title, course);
   }
 
