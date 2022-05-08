@@ -29,6 +29,7 @@ export class Word {
   numberCharacter: number;
   @Column('text')
   placeholder: string;
+
   @ManyToOne(() => Lesson, (lesson) => lesson.word)
   lesson: Lesson;
 }
