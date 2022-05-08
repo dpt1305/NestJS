@@ -11,6 +11,7 @@ import { Task } from './tasks/entities/task.entity';
 import { AuthModule } from './auth/auth.module';
 import { CoursesModule } from './courses/courses.module';
 import { LessonsModule } from './lessons/lessons.module';
+import { WordsModule } from './words/words.module';
 
 @Module({
   imports: [
@@ -23,11 +24,12 @@ import { LessonsModule } from './lessons/lessons.module';
       password: 'postgres',
       database: 'task-manager',
       synchronize: true,
-      entities: [Task, User, Course, Lesson],
+      autoLoadEntities: true,
       // entities: [__dirname + '/../**/*.entity.ts'],
     }),
     CoursesModule,
     LessonsModule,
+    WordsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
