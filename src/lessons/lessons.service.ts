@@ -3,16 +3,18 @@ import { CoursesService } from './../courses/courses.service';
 import { Lesson } from './entities/lesson.entity';
 import { LessonRepository } from './lesson.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { createQueryBuilder } from 'typeorm';
+import { createQueryBuilder, DeleteResult } from 'typeorm';
+import { commonUpdate } from 'src/helper/common-update';
 // import { CoursesService}
 @Injectable()
 export class LessonsService {
   constructor(
     @InjectRepository(LessonRepository)
     private lessonRepository: LessonRepository,
+    private coursesService: CoursesService,
     @InjectRepository(CourseRepository)
     private courseRepository: CourseRepository,
   ) {}
@@ -20,26 +22,45 @@ export class LessonsService {
     createLessonDto: CreateLessonDto,
     idCourse: string,
   ): Promise<Lesson> {
-    const { title } = createLessonDto;
-
-    const course = await this.courseRepository.findCourseById(idCourse);
-
-    return this.lessonRepository.createLesson(title, course);
+    try {
+      const course = await this.coursesService.findOne(idCourse);
+      const lesson = await this.lessonRepository.create({
+        ...createLessonDto,
+        course,
+      });
+      return await this.lessonRepository.save(lesson);
+    } catch (error) {
+      throw new BadRequestException();
+    }
   }
 
-  findAll() {
-    return this.lessonRepository.findAllLessons();
+  async findAll() {
+    return await this.lessonRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} lesson`;
+  async findOne(id: string) {
+    const lesson = await this.lessonRepository.findOne({ id });
+    if (!lesson) {
+      throw new NotFoundException();
+    }
+    return lesson;
   }
 
-  update(id: number, updateLessonDto: UpdateLessonDto) {
-    return `This action updates a #${id} lesson`;
+  async update(id: string, updateLessonDto: UpdateLessonDto) {
+    let lesson = await this.lessonRepository.findOne(id);
+    if (!lesson) {
+      throw new NotFoundException();
+    }
+    lesson = commonUpdate(lesson, updateLessonDto);
+    await lesson.save();
+    return lesson;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} lesson`;
+  async remove(id: string): Promise<DeleteResult> {
+    const result = await this.lessonRepository.delete(id);
+    if (result.affected != 1) {
+      throw new NotFoundException();
+    }
+    return result;
   }
 }

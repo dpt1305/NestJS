@@ -7,10 +7,12 @@ import {
   Entity,
   ManyToOne,
   OneToMany,
+  BaseEntity,
 } from 'typeorm';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 // import { PrimaryGeneratedColumn}
 @Entity()
-export class Lesson {
+export class Lesson extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

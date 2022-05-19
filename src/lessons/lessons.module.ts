@@ -1,3 +1,4 @@
+import { CoursesModule } from './../courses/courses.module';
 import { CourseRepository } from './../courses/courses.repository';
 import { CoursesService } from './../courses/courses.service';
 import { LessonRepository } from './lesson.repository';
@@ -9,6 +10,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 @Module({
   controllers: [LessonsController],
   providers: [LessonsService],
-  imports: [TypeOrmModule.forFeature([LessonRepository, CourseRepository])],
+  imports: [
+    TypeOrmModule.forFeature([LessonRepository, CourseRepository]),
+    CoursesModule,
+  ],
 })
 export class LessonsModule {}
