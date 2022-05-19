@@ -2,13 +2,16 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { WordsService } from './words.service';
 import { CreateWordDto } from './dto/create-word.dto';
 import { UpdateWordDto } from './dto/update-word.dto';
+import { ApiTags } from '@nestjs/swagger';
+import { Word } from './entities/word.entity';
 
 @Controller('words')
+@ApiTags('Words')
 export class WordsController {
   constructor(private readonly wordsService: WordsService) {}
 
   @Post()
-  create(@Body() createWordDto: CreateWordDto) {
+  create(@Body() createWordDto: CreateWordDto): Promise<Word> {
     return this.wordsService.create(createWordDto);
   }
 
@@ -24,11 +27,11 @@ export class WordsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateWordDto: UpdateWordDto) {
-    return this.wordsService.update(+id, updateWordDto);
+    return this.wordsService.update(id, updateWordDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.wordsService.remove(+id);
+    return this.wordsService.remove(id);
   }
 }
