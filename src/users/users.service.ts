@@ -1,4 +1,4 @@
-import { UserRole } from './entities/user.entity';
+import { Role } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -19,7 +19,7 @@ export class UsersService {
       const user = await this.usersRepository.create({
         ...createUserDto,
         password: hash,
-        role: UserRole.User,
+        role: Role.User,
       });
       await this.usersRepository.save(user);
       return user;
@@ -28,20 +28,20 @@ export class UsersService {
     }
   }
 
-  findAll() {
-    return `This action returns all users`;
+  async findAll() {
+    return await this.usersRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(id: string) {
+    return await this.usersRepository.findOne({ id });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+  // async update(id: string, updateUserDto: UpdateUserDto) {
+  //   return `This action updates a #${id} user`;
+  // }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    return await this.usersRepository.delete({ id });
   }
   findByEmail(email) {
     return this.usersRepository.findOne({ email: email });

@@ -5,20 +5,26 @@ import {
   Body,
   Patch,
   Param,
+  Req,
   Delete,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Author } from 'src/authorization/author.decorator';
+import { Role } from 'src/users/entities/user.entity';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { Course } from './entities/course.entity';
 
 @Controller('courses')
+@ApiTags('Course')
+// @ApiBearerAuth()
+@Author(Role.User)
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
-
   @Post()
-  create(@Body() createCourseDto: CreateCourseDto) {
-    return this.coursesService.create(createCourseDto);
+  create(@Body() createCourseDto: CreateCourseDto, @Req() req) {
+    return this.coursesService.create(createCourseDto, req.user);
   }
 
   @Get()

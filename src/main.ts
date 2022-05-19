@@ -11,7 +11,8 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('App learning English')
     .setDescription('My lovely graduation application.')
-    .setVersion('3.2')
+    .setVersion('3.2.2')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);

@@ -1,3 +1,4 @@
+import { User } from './../users/entities/user.entity';
 import { Course } from './entities/course.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
@@ -11,7 +12,7 @@ export class CoursesService {
     @InjectRepository(CourseRepository)
     private courseRepository: CourseRepository,
   ) {}
-  create(createCourseDto: CreateCourseDto) {
+  create(createCourseDto: CreateCourseDto, user: User) {
     return this.courseRepository.createCourse(createCourseDto);
   }
 
