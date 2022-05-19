@@ -7,6 +7,8 @@ import {
   Param,
   Req,
   Delete,
+  NotFoundException,
+  BadRequestException,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Author } from 'src/authorization/author.decorator';
@@ -19,35 +21,73 @@ import { Course } from './entities/course.entity';
 @Controller('courses')
 @ApiTags('Course')
 // @ApiBearerAuth()
-@Author(Role.User)
+@Author(Role.Admin)
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
   @Post()
-  create(@Body() createCourseDto: CreateCourseDto, @Req() req) {
-    return this.coursesService.create(createCourseDto, req.user);
+  async create(@Body() createCourseDto: CreateCourseDto) {
+    try {
+      return {
+        code: 200,
+        message: 'Success',
+        data: await this.coursesService.create(createCourseDto),
+      };
+    } catch (error) {
+      return {
+        code: 400,
+        message: 'Fail to create',
+        data: null,
+      };
+    }
   }
 
   @Get()
-  findAll() {
-    return this.coursesService.findAll();
+  @Author(Role.User, Role.Admin)
+  async findAll() {
+    try {
+      return {
+        code: 200,
+        message: 'Success',
+        data: await this.coursesService.findAll(),
+      };
+    } catch (error) {
+      return {
+        code: 400,
+        message: 'Fail',
+        data: null,
+      };
+    }
   }
-
-  // @Get(':id')
-  // findLessonsByCourse(@Param('id') idCourse: string) {
-  //   return this.coursesService.findLessonsByCourse(idCourse);
-  // }
+  
   @Post(':id')
-  findOne(@Param('id') id: string): Promise<Course> {
+  async findOne(@Param('id') id: string) {
+    try {
+      return {
+        code: 200,
+        message: 'Success',
+        data: await this.coursesService.findOne(id),
+      };
+    } catch (error) {
+      throw new NotFoundException('Can not find course');
+    }
     return this.coursesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
-    return this.coursesService.update(+id, updateCourseDto);
+  async update(@Param('id') id: string, @Body() updateCourseDto: UpdateCourseDto) {
+    try {
+      return {
+        code: 200,
+        message: 'Success',
+        data: await this.coursesService.update(id, updateCourseDto),
+      };
+    } catch (error) {
+      throw new BadRequestException('Can not update course.');
+    }
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.coursesService.remove(+id);
+    return this.coursesService.remove(id);
   }
 }

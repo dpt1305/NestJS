@@ -12,27 +12,35 @@ export class CoursesService {
     @InjectRepository(CourseRepository)
     private courseRepository: CourseRepository,
   ) {}
-  create(createCourseDto: CreateCourseDto, user: User) {
-    return this.courseRepository.createCourse(createCourseDto);
+  async create(createCourseDto: CreateCourseDto) {
+    console.log(createCourseDto);
+    const newCourse = await this.courseRepository.create({
+      ...createCourseDto,
+    });
+    return await this.courseRepository.save(newCourse);
   }
 
-  findAll() {
-    return this.courseRepository.getCourses();
+  async findAll() {
+    return await this.courseRepository.find();
   }
 
-  findOne(id: string): Promise<Course> {
-    return this.courseRepository.findCourseById(id);
+  async findOne(id: string) {
+    return await this.courseRepository.findOne(id);
   }
 
   findLessonsByCourse(id: string) {
     return this.courseRepository.findLessonsByCourse(id);
   }
 
-  update(id: number, updateCourseDto: UpdateCourseDto) {
-    return `This action updates a #${id} course`;
+  async update(id: string, updateCourseDto: UpdateCourseDto) {
+    const course = await this.findOne(id);
+    return await this.courseRepository.save({
+      ...course,
+      ...updateCourseDto,
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} course`;
+  async remove(id: string) {
+    return await this.courseRepository.delete({ id });
   }
 }
