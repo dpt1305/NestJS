@@ -23,10 +23,11 @@ export class LessonsController {
   findAll() {
     return this.lessonsService.findAll();
   }
-
+  
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.lessonsService.findOne(id);
+  @Author(Role.User, Role.Admin)
+  findLessonsByCourseId(@Param('id') id: string) {
+    return this.lessonsService.findLessonsByCourseId(id);
   }
 
   @Patch(':id')

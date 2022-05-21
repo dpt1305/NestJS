@@ -6,7 +6,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
-import { createQueryBuilder, DeleteResult } from 'typeorm';
+import { createQueryBuilder, DeleteResult, getConnection } from 'typeorm';
 import { commonUpdate } from 'src/helper/common-update';
 // import { CoursesService}
 @Injectable()
@@ -35,7 +35,15 @@ export class LessonsService {
   }
 
   async findAll() {
-    return await this.lessonRepository.find();
+    try {
+      return {
+        code : 200,
+        message: 'Success',
+        data: await this.lessonRepository.find(),
+      };
+    } catch (error) {
+      throw new NotFoundException();
+    }
   }
 
   async findOne(id: string) {
@@ -46,6 +54,24 @@ export class LessonsService {
     return lesson;
   }
 
+  async findLessonsByCourseId(id: string) {
+    // const lesson = await this.lessonRepository.findOne({ id });
+    const lessons = await getConnection()
+      .createQueryBuilder()
+      .select('lesson')
+      .from(Lesson, 'lesson')
+      // .innerJoin('lesson.course', 'course')
+      .where('lesson.course = :id', { id })
+      .execute();
+    if (!lessons) {
+      throw new NotFoundException();
+    }
+    return {
+      code: 200,
+      message: 'Success',
+      data: lessons,
+    };
+  }
   async update(id: string, updateLessonDto: UpdateLessonDto) {
     let lesson = await this.lessonRepository.findOne(id);
     if (!lesson) {
