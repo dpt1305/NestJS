@@ -13,12 +13,9 @@ import { Role } from 'src/users/entities/user.entity';
 export class LessonsController {
   constructor(private readonly lessonsService: LessonsService) {}
 
-  @Post(':id')
-  create(
-    @Body() createLessonDto: CreateLessonDto,
-    @Param('id') id: string,
-  ): Promise<Lesson> {
-    return this.lessonsService.create(createLessonDto, id);
+  @Post()
+  create(@Body() createLessonDto: CreateLessonDto): Promise<Lesson> {
+    return this.lessonsService.create( createLessonDto );
   }
 
   @Get()

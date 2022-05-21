@@ -20,12 +20,12 @@ export class LessonsService {
   ) {}
   async create(
     createLessonDto: CreateLessonDto,
-    idCourse: string,
   ): Promise<Lesson> {
     try {
+      const { title, idCourse } = createLessonDto;
       const course = await this.coursesService.findOne(idCourse);
       const lesson = await this.lessonRepository.create({
-        ...createLessonDto,
+        title,
         course,
       });
       return await this.lessonRepository.save(lesson);

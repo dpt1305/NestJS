@@ -38,6 +38,9 @@ export class Word extends BaseEntity {
   @Column('text')
   linkImage: string;
 
+  @Column('text')
+  linkAudio: string;
+
   @Column('int')
   numberCharacter: number;
 

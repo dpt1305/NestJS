@@ -11,6 +11,7 @@ export class CreateWordDto {
   @IsString()
   meaning: string;
 
+  @ApiProperty()
   @IsEnum(WordType)
   type: WordType;
 
@@ -31,9 +32,11 @@ export class CreateWordDto {
   @IsString()
   placeholder: string;
 
-  // @ApiParam({
-  //   name: 'lessonId',
-  // })
-  // @IsString()
-  // lessonId: string;
+  @ApiProperty()
+  @IsString()
+  lessonId: string;
+
+  @ApiProperty()
+  @IsString()
+  linkAudio: string;
 }

@@ -14,5 +14,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     TypeOrmModule.forFeature([LessonRepository, CourseRepository]),
     CoursesModule,
   ],
+  exports: [LessonsService],
 })
 export class LessonsModule {}
