@@ -1,3 +1,4 @@
+import { Role } from './../users/entities/user.entity';
 import { Controller, Get, Post, Body, Patch, Param, Delete, UploadedFile, UseInterceptors } from '@nestjs/common';
 import { WordsService } from './words.service';
 import { CreateWordDto } from './dto/create-word.dto';
@@ -6,9 +7,11 @@ import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Word } from './entities/word.entity';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
+import { Author } from 'src/authorization/author.decorator';
 
 @Controller('words')
 @ApiTags('Words')
+@Author(Role.Admin)
 export class WordsController {
   constructor(private readonly wordsService: WordsService) {}
 
@@ -42,6 +45,7 @@ export class WordsController {
     return this.wordsService.findAll();
   }
 
+  @Author(Role.Admin, Role.User)
   @Get(':id')
   findWordsByLesson(@Param('id') lessonId: string) {
     return this.wordsService.findWordsByLesson(lessonId);
