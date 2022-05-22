@@ -62,6 +62,7 @@ export class LessonsService {
       .from(Lesson, 'lesson')
       // .innerJoin('lesson.course', 'course')
       .where('lesson.course = :id', { id })
+      .orderBy('lesson.title', 'ASC')
       .execute();
     if (!lessons) {
       throw new NotFoundException();

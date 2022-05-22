@@ -55,15 +55,19 @@ export class WordsService {
   async findWordsByLesson(lessonId: string) {
     const words = await getConnection()
       .createQueryBuilder()
-      .select('word')
+      // .select('word')
       .from(Word, 'word')
-      .innerJoinAndSelect('word.lesson', 'lesson')
+      .innerJoin('word.lesson', 'lesson')
       .where('word.lesson = :lessonId', { lessonId })
       .execute();
     if (!words) {
       throw new NotFoundException();
     }
-    return words;
+    return {
+      code: 200,
+      message: 'Success',
+      data: words,
+    };
   }
 
   // await update(id: string, updateWordDto: UpdateWordDto) {

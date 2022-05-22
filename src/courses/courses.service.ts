@@ -5,6 +5,7 @@ import { Injectable } from '@nestjs/common';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
 import { CourseRepository } from './courses.repository';
+import { getConnection } from 'typeorm';
 
 @Injectable()
 export class CoursesService {
@@ -21,7 +22,16 @@ export class CoursesService {
   }
 
   async findAll() {
-    return await this.courseRepository.find();
+    // return await this.courseRepository.find();
+    const result = await getConnection()
+      .createQueryBuilder()
+      // .select('course')
+      .from(Course, 'course')
+      .orderBy('course.title', 'ASC')
+      .execute();
+    console.log(result);
+    return result;
+    
   }
 
   async findOne(id: string) {
