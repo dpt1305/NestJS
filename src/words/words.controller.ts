@@ -17,6 +17,7 @@ export class WordsController {
 
   @Post()
   @ApiConsumes('multipart/form-data')
+  
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({
@@ -51,13 +52,31 @@ export class WordsController {
     return this.wordsService.findWordsByLesson(lessonId);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateWordDto: UpdateWordDto) {
-  //   return this.wordsService.update(id, updateWordDto);
-  // }
+  @Patch(':id')
+  @UseInterceptors(
+    FileInterceptor('image', {
+      storage: diskStorage({
+        destination: './files',
+        filename: function (req, file, cb) {
+          cb(null, file.originalname);
+        },
+      }),
+      fileFilter: function (req, file, callback) {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+          return callback(new Error('Only image files are allowed!'), false);
+        }
+        callback(null, true);
+      },
+    }),
+  )
+  @ApiConsumes('multipart/form-data')
+  update(@Param('id') id: string, @Body() updateWordDto: UpdateWordDto, @UploadedFile() image: Express.Multer.File,) {
+    console.log('controller', updateWordDto, image);
+    return this.wordsService.update(id, updateWordDto, image);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.wordsService.remove(id);
-  // }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.wordsService.remove(id);
+  }
 }

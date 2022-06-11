@@ -29,6 +29,13 @@ export class AuthService {
     const user = await this.usersService.findByEmail(
       createUserDto.email.toString(),
     );
+    if (!user) {
+      return {
+        code: 408,
+        message: 'Fail',
+        data: 'Email or password is incorrect.',
+      };
+    }
     const check =  await bcrypt.compare(createUserDto.password, user.password);
     if (user && check) {
       const payload = user.email;
@@ -44,11 +51,12 @@ export class AuthService {
         message: 'Success',
         data: accessToken,
       };
+    } else {
+      return {
+        code: 408,
+        message: 'Fail',
+        data: 'Email or password is incorrect.',
+      };
     }
-    return {
-      code: 408,
-      message: 'Unauthorized',
-      data: 'Fail to log in',
-    };
   }
 }

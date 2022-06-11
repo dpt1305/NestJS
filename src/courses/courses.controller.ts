@@ -10,7 +10,7 @@ import {
   NotFoundException,
   BadRequestException,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { Author } from 'src/authorization/author.decorator';
 import { Role } from 'src/users/entities/user.entity';
 import { CoursesService } from './courses.service';
@@ -25,6 +25,7 @@ import { Course } from './entities/course.entity';
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
   @Post()
+  // @ApiConsumes('multipart/form-data')
   async create(@Body() createCourseDto: CreateCourseDto) {
     try {
       return {

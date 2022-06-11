@@ -59,22 +59,44 @@ export class WordsService {
       .from(Word, 'word')
       .innerJoin('word.lesson', 'lesson')
       .where('word.lesson = :lessonId', { lessonId })
+      .orderBy('word.word', 'ASC')
       .execute();
     if (!words) {
       throw new NotFoundException();
     }
-    return {
-      code: 200,
-      message: 'Success',
-      data: words,
-    };
   }
 
-  // await update(id: string, updateWordDto: UpdateWordDto) {
-    // const result = await this.wordsRepository;
-  // }
+  async remove(id: string) {
+    try {
+      const req = await this.wordsRepository.delete(id);
 
-  // remove(id: string) {
-  //   return `This action removes a #${id} word`;
-  // }
+      if (req.affected) {
+        return `This action removes a #${id} word`;
+      }
+      throw new BadRequestException('Can not delete this word.');
+    } catch (error) {
+      throw new BadRequestException('Can not delete this word.');
+    }
+  }
+
+  async update(id: string, updateWordDto: UpdateWordDto, file: Express.Multer.File) {
+    try {
+      const word = await this.wordsRepository.findOne({ id });
+      const newWord = {
+        ...word,
+        ...updateWordDto,
+      };
+
+      //# upload image and get link
+      if(file) {
+        const uploadFile = await this.cloudinaryService.uploadImage(file);
+        newWord.linkImage = uploadFile.secure_url;
+      }
+
+      const req = await this.wordsRepository.save(newWord);
+      return req;
+    } catch (error) {
+      throw new NotFoundException('Not found this word');
+    }
+  }
 }
