@@ -53,17 +53,32 @@ export class WordsService {
   }
 
   async findWordsByLesson(lessonId: string) {
-    const words = await getConnection()
-      .createQueryBuilder()
-      // .select('word')
-      .from(Word, 'word')
-      .innerJoin('word.lesson', 'lesson')
-      .where('word.lesson = :lessonId', { lessonId })
-      .orderBy('word.word', 'ASC')
-      .execute();
-    if (!words) {
-      throw new NotFoundException();
+    try {
+      const words = await getConnection()
+        .createQueryBuilder()
+        .select('word')
+        .from(Word, 'word')
+        .innerJoin('word.lesson', 'lesson')
+        .where('word.lesson = :lessonId', { lessonId })
+        .orderBy('word.word', 'ASC')
+        .execute();
+        
+      if (!words.length) {
+        throw new NotFoundException();
+      }
+      return {
+        code: 200,
+        message: 'Success',
+        data: words,
+      }
+    } catch (error) {
+      return {
+        code: 404,
+        message: 'Fail',
+        error: 'Not found this lesson.',
+      };
     }
+
   }
 
   async remove(id: string) {
@@ -97,6 +112,17 @@ export class WordsService {
       return req;
     } catch (error) {
       throw new NotFoundException('Not found this word');
+    }
+  }
+  async findOne(wordId: string) {
+    try {
+      const word = await this.wordsRepository.findOne(wordId);
+      if(!word) {
+        throw new NotFoundException();
+      }
+      return word;
+    } catch (error) {
+      throw new NotFoundException();
     }
   }
 }

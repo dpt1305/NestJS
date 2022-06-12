@@ -17,7 +17,6 @@ export class WordsController {
 
   @Post()
   @ApiConsumes('multipart/form-data')
-  
   @UseInterceptors(
     FileInterceptor('image', {
       storage: diskStorage({

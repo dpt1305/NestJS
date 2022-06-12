@@ -14,5 +14,6 @@ import { WordsController } from './words.controller';
     CloudinaryModule,
     LessonsModule,
   ],
+  exports: [WordsService],
 })
 export class WordsModule {}

@@ -1,3 +1,4 @@
+import { Learnedword } from './../../learnedwords/entities/learnedword.entity';
 import { Lesson } from './../../lessons/entities/lesson.entity';
 import {
   Entity,
@@ -5,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   ManyToOne,
   BaseEntity,
+  OneToMany,
 } from 'typeorm';
 export enum WordType {
   'Noun' = 'Noun',
@@ -49,4 +51,6 @@ export class Word extends BaseEntity {
 
   @ManyToOne(() => Lesson, (lesson) => lesson.word)
   lesson: Lesson;
+  @OneToMany(()=> Learnedword, (learnedword) => learnedword.word)
+  learnedword: Learnedword[];
 }

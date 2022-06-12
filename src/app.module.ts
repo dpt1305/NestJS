@@ -11,6 +11,7 @@ import { LessonsModule } from './lessons/lessons.module';
 import { WordsModule } from './words/words.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { LearnedwordsModule } from './learnedwords/learnedwords.module';
 
 
 @Module({
@@ -33,6 +34,7 @@ import { AuthModule } from './auth/auth.module';
     UsersModule,
     AuthModule,
     CloudinaryModule,
+    LearnedwordsModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, CloudinaryProvider],

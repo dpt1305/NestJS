@@ -1,3 +1,4 @@
+import { Learnedword } from './../../learnedwords/entities/learnedword.entity';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
 
 export enum Role {
@@ -21,4 +22,6 @@ export class User {
     default: Role.User,
   })
   role: Role;
+  @OneToMany(()=> Learnedword, (learnedword) => learnedword.user)
+  learnedword: Learnedword[];
 }
