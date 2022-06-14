@@ -12,6 +12,7 @@ import { WordsModule } from './words/words.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { LearnedwordsModule } from './learnedwords/learnedwords.module';
+import { SupermemoModule } from './supermemo/supermemo.module';
 
 
 @Module({
@@ -35,6 +36,7 @@ import { LearnedwordsModule } from './learnedwords/learnedwords.module';
     AuthModule,
     CloudinaryModule,
     LearnedwordsModule,
+    SupermemoModule,
   ],
   controllers: [AppController],
   providers: [AppService, JwtStrategy, CloudinaryProvider],
