@@ -1,4 +1,4 @@
-import { Role } from './entities/user.entity';
+import { Role, User } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -21,7 +21,7 @@ export class UsersService {
         password: hash,
         role: Role.User,
       });
-      await this.usersRepository.save(user);
+      await user.save();
       return user;
     } catch (error) {
       throw new ConflictException();
@@ -45,5 +45,9 @@ export class UsersService {
   }
   findByEmail(email) {
     return this.usersRepository.findOne({ email: email });
+  }
+  async updateTimeout(user: User, date: Date) {
+    user.timeout = date;
+    await user.save();
   }
 }

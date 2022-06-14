@@ -1,12 +1,12 @@
 import { Learnedword } from './../../learnedwords/entities/learnedword.entity';
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, BaseEntity } from 'typeorm';
 
 export enum Role {
   'Admin' = 'Admin',
   'User' = 'User',
 }
 @Entity()
-export class User {
+export class User extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -22,6 +22,10 @@ export class User {
     default: Role.User,
   })
   role: Role;
-  @OneToMany(()=> Learnedword, (learnedword) => learnedword.user)
+
+  @Column({ type: 'timestamp', nullable: true })
+  timeout: Date;
+
+  @OneToMany(() => Learnedword, (learnedword) => learnedword.user)
   learnedword: Learnedword[];
 }

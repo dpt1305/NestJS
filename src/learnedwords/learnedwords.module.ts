@@ -1,3 +1,4 @@
+import { UsersModule } from './../users/users.module';
 import { WordsModule } from './../words/words.module';
 import { LearnedwordsRepository } from './learnedwords.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,6 +14,7 @@ import { LessonsModule } from 'src/lessons/lessons.module';
     TypeOrmModule.forFeature([LearnedwordsRepository]),
     LessonsModule,
     WordsModule,
+    UsersModule,
   ],
 })
 export class LearnedwordsModule {}

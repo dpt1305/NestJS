@@ -5,6 +5,7 @@ import { LearnedwordsService } from './learnedwords.service';
 import { CreateLearnedwordDto } from './dto/create-learnedword.dto';
 import { UpdateLearnedwordDto } from './dto/update-learnedword.dto';
 import { Role } from 'src/users/entities/user.entity';
+import { UpdateLearnedwordAfterAnswerDto } from './dto/update-learnedword-after-answer.dto';
 
 @Controller('learnedwords')
 @ApiTags('Learnedwords')
@@ -18,6 +19,10 @@ export class LearnedwordsController {
     return this.learnedwordsService.create(createLearnedwordDto, req.user);
   }
 
+  @Get('report')
+  getReportForUser(@Req() req) {
+    return this.learnedwordsService.getReportForUser(req.user);
+  }
   @Get()
   findAll() {
     return this.learnedwordsService.findAll();
@@ -28,9 +33,15 @@ export class LearnedwordsController {
     return this.learnedwordsService.findOne(+id);
   }
 
+
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLearnedwordDto: UpdateLearnedwordDto) {
-    return this.learnedwordsService.update(+id, updateLearnedwordDto);
+    return this.learnedwordsService.update(id, updateLearnedwordDto);
+  }
+  @Patch('update/learnedword/:id')
+  updateAfterAnswer(@Param('id') id: string, @Body() updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto) {
+    
   }
 
   @Delete(':id')

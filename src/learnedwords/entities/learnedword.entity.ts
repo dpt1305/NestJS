@@ -12,7 +12,10 @@ export class Learnedword extends BaseEntity {
   @ManyToOne(() => Word, (word) => word.learnedword)
   word: Word;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'timestamp' })
+  deadline: Date;
+
+  @Column({ type: 'float' })
   interval: number;
 
   @Column({ type: 'int' })

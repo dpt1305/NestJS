@@ -37,7 +37,7 @@ export class LessonsService {
   async findAll() {
     try {
       return {
-        code : 200,
+        code: 200,
         message: 'Success',
         data: await this.lessonRepository.find(),
       };
