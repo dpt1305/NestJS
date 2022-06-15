@@ -1,3 +1,4 @@
+import { SupermemoModule } from './../supermemo/supermemo.module';
 import { UsersModule } from './../users/users.module';
 import { WordsModule } from './../words/words.module';
 import { LearnedwordsRepository } from './learnedwords.repository';
@@ -15,6 +16,7 @@ import { LessonsModule } from 'src/lessons/lessons.module';
     LessonsModule,
     WordsModule,
     UsersModule,
+    SupermemoModule,
   ],
 })
 export class LearnedwordsModule {}

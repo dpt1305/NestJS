@@ -1,3 +1,5 @@
+import { SupermemoService } from './../supermemo/supermemo.service';
+import { UpdateLearnedwordAfterAnswerDto } from './dto/update-learnedword-after-answer.dto';
 import { UsersService } from './../users/users.service';
 import { Learnedword } from './entities/learnedword.entity';
 import { WordsService } from './../words/words.service';
@@ -9,6 +11,7 @@ import { CreateLearnedwordDto } from './dto/create-learnedword.dto';
 import { UpdateLearnedwordDto } from './dto/update-learnedword.dto';
 import { User } from 'src/users/entities/user.entity';
 import { getConnection } from 'typeorm';
+import { SupermemoItem } from 'src/supermemo/supermemo.service';
 
 @Injectable()
 export class LearnedwordsService {
@@ -17,6 +20,7 @@ export class LearnedwordsService {
     private learnedwordsRepository: LearnedwordsRepository,
     private wordsService: WordsService,
     private usersService: UsersService,
+    private supermemoService: SupermemoService,
   ) {}
   async create(createLearnedwordDto: CreateLearnedwordDto, user: User) {
     const { lessonId } = createLearnedwordDto;
@@ -81,9 +85,12 @@ export class LearnedwordsService {
   findAll() {
     return `This action returns all learnedwords`;
   }
-
-  findOne(id: number) {
-    return `This action returns a #${id} learnedword`;
+  async findOne(id: string) {
+    const learnedword = await this.learnedwordsRepository.findOne(id);
+    if(!learnedword) {
+      throw new NotFoundException();
+    }
+    return learnedword;
   }
 
   async update(id: string, updateLearnedwordDto: UpdateLearnedwordDto) {
@@ -149,5 +156,47 @@ export class LearnedwordsService {
     } catch (error) {
       throw new RequestTimeoutException();
     }
+  }
+
+  async updateAfterAnswer(id: string, updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto) {
+    const learnedword: Learnedword = await this.findOne(id);
+
+    //# get all infor
+    let { interval, repetition, efactor, deadline, deck } = learnedword;
+    const { answer } = updateLearnedwordAfterAnswerDto;
+    //# process infor before run SM-2
+    let item: SupermemoItem = {
+      interval,
+      repetition,
+      efactor,
+    };
+
+    //# run SM-2
+    if(!deck) {
+      deck = 1;
+      item = this.supermemoService.supermemo(item, deck);
+    }
+    if (answer && deck) {
+      deck = (deck == 5) ? 5 : (deck+1);
+      item = this.supermemoService.supermemo(item, deck);
+    }
+    if (!answer && deck) {
+      deck = (deck == 1) ? 1 : (deck-1);
+      item = this.supermemoService.supermemo(item, deck);
+    }
+
+    //# save data
+    learnedword.deck = deck;
+    learnedword.interval = item.interval;
+    learnedword.repetition = item.repetition;
+    learnedword.efactor = item.efactor;
+    await learnedword.save();
+
+    //# return data
+    return {
+      code: 200,
+      message: 'Success',
+      data: learnedword,
+    };
   }
 }

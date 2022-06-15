@@ -1,3 +1,4 @@
+import { Learnedword } from './entities/learnedword.entity';
 import { Author } from 'src/authorization/author.decorator';
 import { ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
@@ -6,6 +7,7 @@ import { CreateLearnedwordDto } from './dto/create-learnedword.dto';
 import { UpdateLearnedwordDto } from './dto/update-learnedword.dto';
 import { Role } from 'src/users/entities/user.entity';
 import { UpdateLearnedwordAfterAnswerDto } from './dto/update-learnedword-after-answer.dto';
+import { supermemo, SuperMemoGrade, SuperMemoItem } from 'supermemo';
 
 @Controller('learnedwords')
 @ApiTags('Learnedwords')
@@ -30,18 +32,16 @@ export class LearnedwordsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.learnedwordsService.findOne(+id);
+    return this.learnedwordsService.findOne(id);
   }
-
-
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateLearnedwordDto: UpdateLearnedwordDto) {
     return this.learnedwordsService.update(id, updateLearnedwordDto);
   }
   @Patch('update/learnedword/:id')
-  updateAfterAnswer(@Param('id') id: string, @Body() updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto) {
-    
+  async updateAfterAnswer(@Param('id') id: string, @Body() updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto) {
+    return this.learnedwordsService.updateAfterAnswer( id, updateLearnedwordAfterAnswerDto );
   }
 
   @Delete(':id')
