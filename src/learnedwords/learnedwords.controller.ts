@@ -1,6 +1,7 @@
+import { FormOfOneWord, UpdateAfterReviewDto } from './dto/update-after-review.dto';
 import { Learnedword } from './entities/learnedword.entity';
 import { Author } from 'src/authorization/author.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { LearnedwordsService } from './learnedwords.service';
 import { CreateLearnedwordDto } from './dto/create-learnedword.dto';
@@ -25,6 +26,11 @@ export class LearnedwordsController {
   getReportForUser(@Req() req) {
     return this.learnedwordsService.getReportForUser(req.user);
   }
+  @Get('word-for-review')
+  @ApiOperation({ summary: 'Use when review words' })
+  getWordForReview(@Req() req) {
+    return this.learnedwordsService.getWordForReview(req.user);
+  }
   @Get()
   findAll() {
     return this.learnedwordsService.findAll();
@@ -35,17 +41,23 @@ export class LearnedwordsController {
     return this.learnedwordsService.findOne(id);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateLearnedwordDto: UpdateLearnedwordDto) {
-    return this.learnedwordsService.update(id, updateLearnedwordDto);
+  // @Patch(':id')
+  // @ApiOperation({ summary: 'Update one learnedword'})
+  // update(@Param('id') id: string, @Body() updateLearnedwordDto: UpdateLearnedwordDto) {
+  //   return this.learnedwordsService.update(id, updateLearnedwordDto);
+  // }
+  @Post('update-after-answer2')
+  @ApiOperation({ summary: 'Update learnedwords after review' })
+  async updateAfterAnswer2(@Body() updateAfterReviewDto: UpdateAfterReviewDto, @Req() req) {
+    return this.learnedwordsService.updateAfterAnswer2(updateAfterReviewDto, req.user);
   }
-  @Patch('update/learnedword/:id')
-  async updateAfterAnswer(@Param('id') id: string, @Body() updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto) {
-    return this.learnedwordsService.updateAfterAnswer( id, updateLearnedwordAfterAnswerDto );
-  }
+  // @Patch('update-after-answer/:id')
+  // async updateAfterAnswer(@Param('id') id: string, @Body() updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto) {
+  //   return this.learnedwordsService.updateAfterAnswer( id, updateLearnedwordAfterAnswerDto );
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.learnedwordsService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.learnedwordsService.remove(+id);
+  // }
 }

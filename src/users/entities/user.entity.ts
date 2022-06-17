@@ -26,6 +26,9 @@ export class User extends BaseEntity {
   @Column({ type: 'timestamp', nullable: true })
   timeout: Date;
 
+  @Column('text', { array: true })
+  learnedLesson: string[];
+
   @OneToMany(() => Learnedword, (learnedword) => learnedword.user)
   learnedword: Learnedword[];
 }

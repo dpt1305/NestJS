@@ -4,6 +4,7 @@ import { Injectable, ConflictException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import * as bcrypt from 'bcrypt';
+import { userInfo } from 'os';
 
 // import { UserRole}
 @Injectable()
@@ -20,6 +21,7 @@ export class UsersService {
         ...createUserDto,
         password: hash,
         role: Role.User,
+        learnedLesson: [],
       });
       await user.save();
       return user;
@@ -49,5 +51,25 @@ export class UsersService {
   async updateTimeout(user: User, date: Date) {
     user.timeout = date;
     await user.save();
+  }
+  async getTimeout(user: User) {
+    return {
+      code: 200,
+      message: 'Success',
+      data: user.timeout,
+    };
+  }
+  async addLearnedLesson(user: User, lessonId: string) {
+    try {
+      const arrayOfLearnedLesson = user.learnedLesson;
+      console.log(arrayOfLearnedLesson);
+      if (arrayOfLearnedLesson.indexOf(lessonId) != -1) {
+        throw new ConflictException();
+      }
+      user.learnedLesson.push(lessonId);
+      user.save();
+    } catch (error) {
+      return error;
+    }
   }
 }

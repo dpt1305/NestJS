@@ -6,12 +6,21 @@ import { WordsService } from './../words/words.service';
 import { LessonsService } from './../lessons/lessons.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LearnedwordsRepository } from './learnedwords.repository';
-import { Injectable, RequestTimeoutException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  RequestTimeoutException,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { CreateLearnedwordDto } from './dto/create-learnedword.dto';
 import { UpdateLearnedwordDto } from './dto/update-learnedword.dto';
 import { User } from 'src/users/entities/user.entity';
 import { getConnection } from 'typeorm';
 import { SupermemoItem } from 'src/supermemo/supermemo.service';
+import {
+  FormOfOneWord,
+  UpdateAfterReviewDto,
+} from './dto/update-after-review.dto';
 
 @Injectable()
 export class LearnedwordsService {
@@ -24,35 +33,40 @@ export class LearnedwordsService {
   ) {}
   async create(createLearnedwordDto: CreateLearnedwordDto, user: User) {
     const { lessonId } = createLearnedwordDto;
-    console.log(user.id);
 
     //# find all words by lesson id
     const allWords = await this.wordsService.findWordsByLesson(lessonId);
 
-    //# update time out for user
-    const updateTimeoutPromise = new Promise((resolve, reject) => {
+
+    //# start transaction 
+    const runner = getConnection().createQueryRunner();
+    await runner.startTransaction();
+
+    const promises = [];
+
+    //# update timeout and learnedLesson in user
+    const updateUserPromise = async () => {
       const date = new Date();
       date.setHours(date.getHours() + 10);
 
+      this.usersService.addLearnedLesson(user, lessonId);
       this.usersService.updateTimeout(user, date);
-    });
+    };
+    promises.push(updateUserPromise());
 
     //# create all promise
-    let words;
+    let words = [];
     if (allWords.data) {
       words = allWords.data.map((el) => {
-        return this.createNewLearnedword(user, el.word_id);
-        // new Promise(this.learnedwordsRepository.save()
+        return this.promiseCreateLearnedword(user, el.word_id);
       });
     }
-
-    //# save learned word into db
-    const runner = getConnection().createQueryRunner();
-    await runner.startTransaction();
+    promises.push(...words);
     try {
       //# success
-      Promise.all([...words, updateTimeoutPromise]);
+      await Promise.all(promises);
       await runner.commitTransaction();
+
       return {
         code: 200,
         message: 'Success',
@@ -64,7 +78,7 @@ export class LearnedwordsService {
       await runner.release();
     }
   }
-  async createNewLearnedword(user: User, wordId: string) {
+  async promiseCreateLearnedword(user: User, wordId: string) {
     const word = await this.wordsService.findOne(wordId);
     const date = new Date();
     const deadline = new Date(date.setHours(date.getHours() + 10));
@@ -78,16 +92,17 @@ export class LearnedwordsService {
       deck: 0,
       deadline,
     };
-    return new Promise((resolve, reject) => {
-      this.learnedwordsRepository.save(learnedword);
-    });
+    this.learnedwordsRepository.save(learnedword);
+    // return new Promise((resolve, reject) => {
+    //   this.learnedwordsRepository.save(learnedword);
+    // });
   }
   findAll() {
     return `This action returns all learnedwords`;
   }
   async findOne(id: string) {
     const learnedword = await this.learnedwordsRepository.findOne(id);
-    if(!learnedword) {
+    if (!learnedword) {
       throw new NotFoundException();
     }
     return learnedword;
@@ -95,8 +110,10 @@ export class LearnedwordsService {
 
   async update(id: string, updateLearnedwordDto: UpdateLearnedwordDto) {
     const { interval, repetition, efactor, deck } = updateLearnedwordDto;
-    
-    const learnedword: Learnedword = await this.learnedwordsRepository.findOne({id});
+
+    const learnedword: Learnedword = await this.learnedwordsRepository.findOne({
+      id,
+    });
     if (!learnedword) {
       throw new NotFoundException();
     }
@@ -109,7 +126,6 @@ export class LearnedwordsService {
     //# update deadline
     const date = new Date();
     date.setDate(date.getDate() + interval);
-    console.log(date);
     learnedword.deadline = date;
 
     //# save data
@@ -143,7 +159,6 @@ export class LearnedwordsService {
       const data = [0, 0, 0, 0, 0, 0];
       query.forEach((el) => {
         const test = JSON.parse(JSON.stringify(el));
-        console.log(test);
         data[test.deck] = +test.count;
       });
 
@@ -158,45 +173,123 @@ export class LearnedwordsService {
     }
   }
 
-  async updateAfterAnswer(id: string, updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto) {
-    const learnedword: Learnedword = await this.findOne(id);
+  async updateAfterAnswer(
+    id: string,
+    updateLearnedwordAfterAnswerDto: UpdateLearnedwordAfterAnswerDto,
+  ) {
+    try {
+      const learnedword: Learnedword = await this.findOne(id);
 
-    //# get all infor
-    let { interval, repetition, efactor, deadline, deck } = learnedword;
-    const { answer } = updateLearnedwordAfterAnswerDto;
-    //# process infor before run SM-2
-    let item: SupermemoItem = {
-      interval,
-      repetition,
-      efactor,
-    };
+      if (!learnedword) {
+        throw new NotFoundException();
+      }
 
-    //# run SM-2
-    if(!deck) {
-      deck = 1;
-      item = this.supermemoService.supermemo(item, deck);
+      //# get all infor
+      let { interval, repetition, efactor, deadline, deck } = learnedword;
+      const { answer } = updateLearnedwordAfterAnswerDto;
+      //# process infor before run SM-2
+      let item: SupermemoItem = {
+        interval,
+        repetition,
+        efactor,
+      };
+
+      //# run SM-2
+      if (!deck) {
+        deck = 1;
+        item = this.supermemoService.supermemo(item, deck);
+      }
+      if (answer && deck) {
+        deck = deck == 5 ? 5 : deck + 1;
+        item = this.supermemoService.supermemo(item, deck);
+      }
+      if (!answer && deck) {
+        deck = deck == 1 ? 1 : deck - 1;
+        item = this.supermemoService.supermemo(item, deck);
+      }
+
+      //# save data
+      learnedword.deck = deck;
+      learnedword.interval = item.interval;
+      learnedword.repetition = item.repetition;
+      learnedword.efactor = item.efactor;
+
+      //# update deadline
+      const date = new Date();
+      date.setDate(date.getDate() + item.interval);
+      learnedword.deadline = date;
+
+      learnedword.save();
+    } catch (error) {
+      return error.response;
     }
-    if (answer && deck) {
-      deck = (deck == 5) ? 5 : (deck+1);
-      item = this.supermemoService.supermemo(item, deck);
-    }
-    if (!answer && deck) {
-      deck = (deck == 1) ? 1 : (deck-1);
-      item = this.supermemoService.supermemo(item, deck);
+  }
+
+  async getWordForReview(user: User) {
+    const timeNow = new Date();
+    const checkTimeout = timeNow > user.timeout;
+
+    if (!checkTimeout) {
+      throw new BadRequestException();
     }
 
-    //# save data
-    learnedword.deck = deck;
-    learnedword.interval = item.interval;
-    learnedword.repetition = item.repetition;
-    learnedword.efactor = item.efactor;
-    await learnedword.save();
-
-    //# return data
+    const query = await getConnection()
+      .createQueryBuilder()
+      .select('word')
+      .addSelect('learnedword.id')
+      .from(Learnedword, 'learnedword')
+      .innerJoin('learnedword.word', 'word')
+      .where(':timeNow >= deadline', { timeNow })
+      .execute();
     return {
       code: 200,
       message: 'Success',
-      data: learnedword,
+      data: query,
     };
+  }
+  async getTheFirstLearnedword(user: User) {
+    const query = await getConnection()
+      .createQueryBuilder()
+      .select('learnedword.deadline')
+      .from(Learnedword, 'learnedword')
+      .where('learnedword.userId = :id', { id: user.id })
+      .orderBy('learnedword.deadline', 'ASC')
+      // .take(1)
+      .limit(1)
+      .execute();
+    return query[0].learnedword_deadline;
+  }
+
+  async updateAfterAnswer2(
+    updateAfterReviewDto: UpdateAfterReviewDto,
+    user: User,
+  ) {
+    const { result } = updateAfterReviewDto;
+
+    //# save learned word into db
+    const runner = getConnection().createQueryRunner();
+    await runner.startTransaction();
+    try {
+      //# success
+      const arrayPromise = result.map((el) => {
+        return this.updateAfterAnswer(el.id, { answer: el.answer });
+      });
+      await Promise.all(arrayPromise);
+
+      //# save user timeout
+      const timeout = await this.getTheFirstLearnedword(user);
+      await this.usersService.updateTimeout(user, timeout);
+
+      await runner.commitTransaction();
+      return {
+        code: 200,
+        message: 'Success',
+        data: 'Save learned words successfully.',
+      };
+    } catch (error) {
+      await runner.rollbackTransaction();
+    } finally {
+      await runner.release();
+    }
   }
 }

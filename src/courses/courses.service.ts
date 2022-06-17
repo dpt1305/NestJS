@@ -29,7 +29,6 @@ export class CoursesService {
       .from(Course, 'course')
       .orderBy('course.title', 'ASC')
       .execute();
-    console.log(result);
     return result;
     
   }
