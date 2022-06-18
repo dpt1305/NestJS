@@ -56,7 +56,7 @@ export class WordsService {
     try {
       const words = await getConnection()
         .createQueryBuilder()
-        .select('word')
+        // .select('word')
         .from(Word, 'word')
         .innerJoin('word.lesson', 'lesson')
         .where('word.lesson = :lessonId', { lessonId })

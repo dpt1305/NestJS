@@ -11,6 +11,7 @@ import {
   RequestTimeoutException,
   NotFoundException,
   BadRequestException,
+  ConflictException,
 } from '@nestjs/common';
 import { CreateLearnedwordDto } from './dto/create-learnedword.dto';
 import { UpdateLearnedwordDto } from './dto/update-learnedword.dto';
@@ -37,7 +38,6 @@ export class LearnedwordsService {
     //# find all words by lesson id
     const allWords = await this.wordsService.findWordsByLesson(lessonId);
 
-
     //# start transaction 
     const runner = getConnection().createQueryRunner();
     await runner.startTransaction();
@@ -45,6 +45,11 @@ export class LearnedwordsService {
     const promises = [];
 
     //# update timeout and learnedLesson in user
+    const checkAddLearnedLesson = await this.usersService.addLearnedLesson(user, lessonId);
+    if(!checkAddLearnedLesson) {
+      throw new ConflictException();
+    }
+    
     const updateUserPromise = async () => {
       const date = new Date();
       date.setHours(date.getHours() + 10);

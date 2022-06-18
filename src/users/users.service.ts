@@ -60,16 +60,19 @@ export class UsersService {
     };
   }
   async addLearnedLesson(user: User, lessonId: string) {
-    try {
-      const arrayOfLearnedLesson = user.learnedLesson;
-      console.log(arrayOfLearnedLesson);
-      if (arrayOfLearnedLesson.indexOf(lessonId) != -1) {
-        throw new ConflictException();
-      }
-      user.learnedLesson.push(lessonId);
-      user.save();
-    } catch (error) {
-      return error;
+    const arrayOfLearnedLesson = user.learnedLesson;
+    if (arrayOfLearnedLesson.indexOf(lessonId) != -1) {
+      return false;
     }
+    user.learnedLesson.push(lessonId);
+    user.save();
+    return true;
+  }
+  async getLearnedLesson(user: User) {
+    return {
+      code: 200,
+      message: 'Success',
+      data: user.learnedLesson,
+    };
   }
 }

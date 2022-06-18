@@ -27,6 +27,11 @@ export class UsersController {
   getTimeout(@Req() req) {
     return this.usersService.getTimeout(req.user);
   }
+  @Get('user-learnedlesson')
+  @Author(Role.User)
+  getLearnedLesson(@Req() req) {
+    return this.usersService.getLearnedLesson(req.user);
+  }
 
   @Author(Role.Admin)
   @Post()
