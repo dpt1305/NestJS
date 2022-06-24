@@ -63,7 +63,7 @@ export class LearnedwordsService {
     let words = [];
     if (allWords.data) {
       words = allWords.data.map((el) => {
-        return this.promiseCreateLearnedword(user, el.word_id);
+        return this.promiseCreateLearnedword(user, el.id);
       });
     }
     promises.push(...words);
@@ -244,7 +244,9 @@ export class LearnedwordsService {
       .addSelect('learnedword.id')
       .from(Learnedword, 'learnedword')
       .innerJoin('learnedword.word', 'word')
-      .where(':timeNow >= deadline', { timeNow })
+      .innerJoin('learnedword.user', 'user')
+      .where('learnedword.deadline < :timeNow', { timeNow })
+      .andWhere('user.id = :id', { id: user.id })
       .execute();
     return {
       code: 200,

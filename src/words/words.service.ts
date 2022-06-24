@@ -20,9 +20,7 @@ export class WordsService {
    * @param createWordDto CreateWordDto
    * @returns Word entity
    */
-  async create(createWordDto: CreateWordDto, file: Express.Multer.File): Promise<Word> {
-    console.log(createWordDto);
-    
+  async create(createWordDto: CreateWordDto, file: Express.Multer.File): Promise<Word> {    
     const { word, meaning, type, example, pronunciation, placeholder, linkAudio, lessonId } = createWordDto;
     const lesson = await this.lessonsService.findOne(lessonId);
     const newWord = new Word();
@@ -51,25 +49,47 @@ export class WordsService {
       throw new BadRequestException();
     }
   }
+  // async convertData(words: []) {
+  //   words.map( (el) => {
+  //     return {
+  //       id: el.word_id,
+  //       word: el.word_word,
 
+  //     }
+  //   })
+  // }
   async findWordsByLesson(lessonId: string) {
     try {
       const words = await getConnection()
         .createQueryBuilder()
-        // .select('word')
+        .select('word')
         .from(Word, 'word')
         .innerJoin('word.lesson', 'lesson')
         .where('word.lesson = :lessonId', { lessonId })
         .orderBy('word.word', 'ASC')
         .execute();
-        
+      
+      const newWords = words.map( (el) => {
+        return {
+          id: el.word_id,
+          word: el.word_word,
+          meaning: el.word_meaning,
+          type: el.word_type,
+          example: el.word_example,
+          pronunciation: el.word_pronunciation,
+          linkImage: el.word_linkImage,
+          linkAudio: el.word_linkAudio,
+          numberCharacter: el.word_numberCharacter,
+          placeholder: el.word_placeholder,
+        };
+      });
       if (!words.length) {
         throw new NotFoundException();
       }
       return {
         code: 200,
         message: 'Success',
-        data: words,
+        data: newWords,
       }
     } catch (error) {
       return {

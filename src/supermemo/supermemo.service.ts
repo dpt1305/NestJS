@@ -5,6 +5,10 @@ export type SupermemoItem = {
   repetition: number;
   efactor: number;
 };
+function supermemo(item: SupermemoItem, grade: number)
+{
+
+}
 
 @Injectable()
 export class SupermemoService {
