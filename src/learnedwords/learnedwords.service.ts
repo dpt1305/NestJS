@@ -112,6 +112,17 @@ export class LearnedwordsService {
     }
     return learnedword;
   }
+  async getWrongAnswer(id) {
+    const wrongWords = await this.wordsService.findAll();
+    const result = wrongWords.map((el) => {
+      if(el.id != id) {
+        return el;
+      }
+    });
+    console.log(result);
+    return result;
+    
+  }
 
   async update(id: string, updateLearnedwordDto: UpdateLearnedwordDto) {
     const { interval, repetition, efactor, deck } = updateLearnedwordDto;
