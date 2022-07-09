@@ -35,6 +35,8 @@ $ npm install
 ## Running the app
 
 ```bash
+# create db on docker
+$ docker-compose -f ./docker-compose.yml up
 # development
 $ npm run start
 
