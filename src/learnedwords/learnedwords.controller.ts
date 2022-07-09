@@ -37,8 +37,8 @@ export class LearnedwordsController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.learnedwordsService.findOne(id);
+  getWrongAnswer(@Param('id') id: string) {
+    return this.learnedwordsService.getWrongAnswer(id);
   }
 
   // @Patch(':id')
